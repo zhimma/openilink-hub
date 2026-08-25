@@ -408,7 +408,9 @@ go build -o oih .
 | `STORAGE_ACCESS_KEY` | — | 存储密钥 |
 | `STORAGE_SECRET_KEY` | — | 存储密钥 |
 | `STORAGE_BUCKET` | — | 存储桶 |
+| `STORAGE_REGION` | — | 存储地域（COS 等服务建议填写，例如 `ap-beijing`） |
 | `STORAGE_BUCKET_LOOKUP` | `auto` | Bucket 寻址模式：`auto` / `path` / `dns`（COS、OSS、R2 用 `dns`） |
+| `STORAGE_SSL` | `false` | 是否使用 HTTPS；生产 COS 建议设为 `true` |
 | `STORAGE_PUBLIC_URL` | — | 存储公开 URL |
 
 <details>

@@ -14,18 +14,19 @@ type Config struct {
 	Secret     string // server secret for token encryption
 
 	// Storage (MinIO / S3, or local filesystem)
-	StorageEndpoint  string
-	StorageAccessKey string
-	StorageSecretKey string
-	StorageBucket    string
-	StorageSSL       bool
-	StoragePublicURL string
+	StorageEndpoint     string
+	StorageAccessKey    string
+	StorageSecretKey    string
+	StorageBucket       string
+	StorageRegion       string
+	StorageSSL          bool
+	StoragePublicURL    string
 	StorageBucketLookup string // "auto" | "path" | "dns"; bucket addressing style
-	StoragePath      string // local filesystem path (used when S3 is not configured)
+	StoragePath         string // local filesystem path (used when S3 is not configured)
 
 	// OAuth providers
-	GitHubClientID     string
-	GitHubClientSecret string
+	GitHubClientID      string
+	GitHubClientSecret  string
 	LinuxDoClientID     string
 	LinuxDoClientSecret string
 }
@@ -43,6 +44,7 @@ func Parse() *Config {
 	cfg.StorageAccessKey = envOr("STORAGE_ACCESS_KEY", "")
 	cfg.StorageSecretKey = envOr("STORAGE_SECRET_KEY", "")
 	cfg.StorageBucket = envOr("STORAGE_BUCKET", "openilink")
+	cfg.StorageRegion = envOr("STORAGE_REGION", "")
 	cfg.StorageSSL = envOr("STORAGE_SSL", "") == "true"
 	cfg.StoragePublicURL = envOr("STORAGE_PUBLIC_URL", "")
 	cfg.StorageBucketLookup = envOr("STORAGE_BUCKET_LOOKUP", "auto")

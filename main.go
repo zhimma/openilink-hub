@@ -12,21 +12,21 @@ import (
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	appdelivery "github.com/openilink/openilink-hub/internal/app"
 	"github.com/openilink/openilink-hub/internal/api"
+	appdelivery "github.com/openilink/openilink-hub/internal/app"
 	"github.com/openilink/openilink-hub/internal/auth"
 	"github.com/openilink/openilink-hub/internal/bot"
 	"github.com/openilink/openilink-hub/internal/builtin"
 	"github.com/openilink/openilink-hub/internal/config"
 	"github.com/openilink/openilink-hub/internal/daemon"
 	"github.com/openilink/openilink-hub/internal/push"
+	"github.com/openilink/openilink-hub/internal/registry"
 	"github.com/openilink/openilink-hub/internal/relay"
 	"github.com/openilink/openilink-hub/internal/sink"
+	"github.com/openilink/openilink-hub/internal/storage"
 	"github.com/openilink/openilink-hub/internal/store"
 	"github.com/openilink/openilink-hub/internal/store/postgres"
 	"github.com/openilink/openilink-hub/internal/store/sqlite"
-	"github.com/openilink/openilink-hub/internal/registry"
-	"github.com/openilink/openilink-hub/internal/storage"
 
 	// Register providers
 	_ "github.com/openilink/openilink-hub/internal/provider/ilink"
@@ -149,14 +149,20 @@ func main() {
 			publicURL = cfg.RPOrigin + "/api/v1/media"
 		}
 		var err error
+		bucketLookup, err := storage.ParseBucketLookup(cfg.StorageBucketLookup)
+		if err != nil {
+			slog.Error("storage config invalid", "field", "STORAGE_BUCKET_LOOKUP", "err", err)
+			os.Exit(1)
+		}
 		objStore, err = storage.NewS3(storage.S3Config{
-			Endpoint:  cfg.StorageEndpoint,
-			AccessKey: cfg.StorageAccessKey,
-			SecretKey: cfg.StorageSecretKey,
-			Bucket:    cfg.StorageBucket,
-			UseSSL:    cfg.StorageSSL,
-			PublicURL: publicURL,
-			BucketLookup: storage.ParseBucketLookup(cfg.StorageBucketLookup),
+			Endpoint:     cfg.StorageEndpoint,
+			AccessKey:    cfg.StorageAccessKey,
+			SecretKey:    cfg.StorageSecretKey,
+			Bucket:       cfg.StorageBucket,
+			Region:       cfg.StorageRegion,
+			UseSSL:       cfg.StorageSSL,
+			PublicURL:    publicURL,
+			BucketLookup: bucketLookup,
 		})
 		if err != nil {
 			slog.Error("storage init failed (s3)", "err", err)

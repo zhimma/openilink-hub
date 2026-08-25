@@ -24,6 +24,7 @@ type S3Config struct {
 	AccessKey string
 	SecretKey string
 	Bucket    string
+	Region    string
 	UseSSL    bool
 	PublicURL string
 	// BucketLookup specifies the bucket addressing style:
@@ -33,22 +34,25 @@ type S3Config struct {
 
 // ParseBucketLookup parses a string into a minio.BucketLookupType.
 // Accepts "auto" (default), "path", or "dns" (case-insensitive).
-func ParseBucketLookup(s string) minio.BucketLookupType {
+func ParseBucketLookup(s string) (minio.BucketLookupType, error) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
 	case "path":
-		return minio.BucketLookupPath
+		return minio.BucketLookupPath, nil
 	case "dns":
-		return minio.BucketLookupDNS
+		return minio.BucketLookupDNS, nil
+	case "", "auto":
+		return minio.BucketLookupAuto, nil
 	default:
-		return minio.BucketLookupAuto
+		return minio.BucketLookupAuto, fmt.Errorf("invalid bucket lookup mode %q: want auto, path, or dns", s)
 	}
 }
 
 // NewS3 creates a new S3Store and ensures the bucket exists.
 func NewS3(cfg S3Config) (*S3Store, error) {
 	client, err := minio.New(cfg.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
-		Secure: cfg.UseSSL,
+		Creds:        credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
+		Region:       cfg.Region,
+		Secure:       cfg.UseSSL,
 		BucketLookup: cfg.BucketLookup,
 	})
 	if err != nil {
